@@ -356,7 +356,7 @@ def student_profile():
 
     if request.method == "POST":
         student.register_number = request.form.get("register_number")
-        student.batch = request.form.get("batch")
+        student.batch = request.form.get("batch") 
         student.course = request.form.get("course")
         student.branch = request.form.get("branch")
         student.gender = request.form.get("gender")

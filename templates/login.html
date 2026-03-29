@@ -24,6 +24,29 @@
             align-items: center;
             overflow: hidden;
         }
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            filter: blur(12px);
+            opacity: .35;
+            z-index: 0;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+        body::before {
+            background: #7ed0ff;
+            top: -80px;
+            left: -70px;
+        }
+        body::after {
+            background: #f3ccff;
+            bottom: -90px;
+            right: -90px;
+            animation-delay: 1.2s;
+        }
 
         @keyframes gradientMove {
             0% { background-position: 0% 50%; }
@@ -32,6 +55,8 @@
         }
 
         .login-card {
+            position: relative;
+            z-index: 1;
             width: 100%;
             max-width: 420px;
             padding: 40px;
@@ -39,7 +64,7 @@
             backdrop-filter: blur(20px);
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            animation: fadeIn 0.8s ease-in-out;
+            animation: fadeIn 0.8s ease-in-out, cardFloat 5s ease-in-out infinite;
         }
 
         @keyframes fadeIn {
@@ -50,11 +75,14 @@
         .form-control {
             border-radius: 10px;
             height: 45px;
+            transition: transform .25s ease, box-shadow .25s ease;
         }
 
         .form-control:focus {
             box-shadow: none;
             border-color: #4facfe;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(79, 172, 254, .25);
         }
 
         .btn-custom {
@@ -70,6 +98,29 @@
         .btn-custom:hover {
             transform: scale(1.03);
             background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        .btn-custom.loading {
+            position: relative;
+            pointer-events: none;
+            opacity: .9;
+            color: transparent;
+        }
+        .btn-custom.loading::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            margin-left: -9px;
+            margin-top: -9px;
+            border: 2px solid rgba(255,255,255,.65);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+        .page-exit .login-card {
+            animation: pageOut .42s ease forwards;
         }
 
         .title {
@@ -106,6 +157,21 @@
 
         .toggle-password:hover {
             color: #00c6ff;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10px, 14px); }
+        }
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        @keyframes pageOut {
+            from { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 0; transform: scale(.96) translateY(10px); }
         }
     </style>
 </head>
@@ -169,16 +235,19 @@
     const email = document.getElementById("email");
 
     form.addEventListener("submit", function(e){
-
         const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
-
         if(!email.value.match(emailPattern)){
             document.getElementById("emailError").style.display = "block";
             e.preventDefault();
         } else {
             document.getElementById("emailError").style.display = "none";
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.classList.add("loading");
+            submitBtn.disabled = true;
+            document.body.classList.add("page-exit");
+            setTimeout(() => form.submit(), 420);
         }
-
     });
 
     function togglePassword(event){
